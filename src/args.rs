@@ -1,8 +1,10 @@
+use std::path::PathBuf;
+
 use crate::CompileStage;
 
-pub fn parse(args: Vec<String>) -> (String, CompileStage) {
+pub fn parse(args: Vec<String>) -> (PathBuf, CompileStage) {
     let mut flags = 0_u8;
-    let mut file_path = String::new();
+    let mut file_path = PathBuf::new();
 
     args.into_iter().enumerate().for_each(|(i, arg)| {
         if i == 0 {
@@ -13,12 +15,12 @@ pub fn parse(args: Vec<String>) -> (String, CompileStage) {
             "--parse" => flags |= 0x02,
             "--code-gen" => flags |= 0x04,
             "--help" | "-h" => panic!("Help is not implemented yet."),
-            arg if arg.ends_with(".c") => file_path = arg.to_string(),
+            arg if arg.ends_with(".c") => file_path.push(arg),
             arg => panic!("Unknown argument: '{arg}'. Use -h or --help flag for more information."),
         }
     });
 
-    if file_path.is_empty() {
+    if file_path.cmp(&PathBuf::new()).is_eq() {
         panic!("No source file is specified. Use -h or --help flag for more information.")
     }
 
@@ -34,12 +36,22 @@ pub fn parse(args: Vec<String>) -> (String, CompileStage) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::{ffi::OsStr, path::Path};
+
+    #[test]
+    fn test_parse_path() {
+        let args = vec!["program".to_string(), "/path/to/file.c".to_string()];
+        let (file_path, compile_stage) = parse(args);
+
+        assert_eq!(file_path.file_name(), Some(OsStr::new("file.c")));
+        assert_eq!(compile_stage, CompileStage::All);
+    }
 
     #[test]
     fn test_parse_no_flag() {
         let args = vec!["program".to_string(), "file.c".to_string()];
         let result = parse(args);
-        assert_eq!(result, ("file.c".to_string(), CompileStage::All));
+        assert_eq!(result, (Path::new("file.c").to_owned(), CompileStage::All));
     }
 
     #[test]
@@ -50,7 +62,7 @@ mod tests {
             "file.c".to_string(),
         ];
         let result = parse(args);
-        assert_eq!(result, ("file.c".to_string(), CompileStage::Lex));
+        assert_eq!(result, (Path::new("file.c").to_owned(), CompileStage::Lex));
     }
 
     #[test]
@@ -61,7 +73,10 @@ mod tests {
             "file.c".to_string(),
         ];
         let result = parse(args);
-        assert_eq!(result, ("file.c".to_string(), CompileStage::Parse));
+        assert_eq!(
+            result,
+            (Path::new("file.c").to_owned(), CompileStage::Parse)
+        );
     }
 
     #[test]
@@ -72,7 +87,10 @@ mod tests {
             "file.c".to_string(),
         ];
         let result = parse(args);
-        assert_eq!(result, ("file.c".to_string(), CompileStage::CodeGen));
+        assert_eq!(
+            result,
+            (Path::new("file.c").to_owned(), CompileStage::CodeGen)
+        );
     }
 
     #[test]
