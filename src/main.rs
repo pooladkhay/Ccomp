@@ -8,6 +8,7 @@ enum CompileStage {
     Lex,
     Parse,
     CodeGen,
+    EmitCode,
     All,
 }
 

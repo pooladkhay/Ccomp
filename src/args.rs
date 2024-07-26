@@ -14,6 +14,7 @@ pub fn parse(args: Vec<String>) -> (PathBuf, CompileStage) {
             "--lex" => flags |= 0x01,
             "--parse" => flags |= 0x02,
             "--code-gen" => flags |= 0x04,
+            "-S" => flags |= 0x08,
             "--help" | "-h" => panic!("Help is not implemented yet."),
             arg if arg.ends_with(".c") => file_path.push(arg),
             arg => panic!("Unknown argument: '{arg}'. Use -h or --help flag for more information."),
@@ -29,7 +30,8 @@ pub fn parse(args: Vec<String>) -> (PathBuf, CompileStage) {
         1 => (file_path, CompileStage::Lex),
         2 => (file_path, CompileStage::Parse),
         4 => (file_path, CompileStage::CodeGen),
-        _ => panic!("Only one of the '--lex', '--parse', or '--code-gen' flags should be passed. Use -h or --help flag for more information."),
+        8 => (file_path, CompileStage::EmitCode),
+        _ => panic!("Only one of the '--lex', '--parse', '--code-gen', or '-S' flags should be passed. Use -h or --help flag for more information."),
     }
 }
 
@@ -94,6 +96,20 @@ mod tests {
     }
 
     #[test]
+    fn test_parse_emit_assembly_flag() {
+        let args = vec![
+            "program".to_string(),
+            "-S".to_string(),
+            "file.c".to_string(),
+        ];
+        let result = parse(args);
+        assert_eq!(
+            result,
+            (Path::new("file.c").to_owned(), CompileStage::EmitCode)
+        );
+    }
+
+    #[test]
     #[should_panic(expected = "No source file is specified.")]
     fn test_parse_no_file() {
         let args = vec!["program".to_string()];
@@ -120,7 +136,7 @@ mod tests {
 
     #[test]
     #[should_panic(
-        expected = "Only one of the '--lex', '--parse', or '--code-gen' flags should be passed."
+        expected = "Only one of the '--lex', '--parse', '--code-gen', or '-S' flags should be passed."
     )]
     fn test_parse_multiple_flags() {
         let args = vec![
