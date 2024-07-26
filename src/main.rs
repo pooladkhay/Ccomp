@@ -1,6 +1,7 @@
-use std::env;
+use std::{env, process::exit};
 
 mod args;
+mod cc;
 
 #[derive(Debug, PartialEq)]
 enum CompileStage {
@@ -13,11 +14,14 @@ enum CompileStage {
 fn main() {
     let (c_file_path, compile_stage) = args::parse(env::args().collect::<Vec<String>>());
 
-    println!("{:?}", compile_stage);
-    println!("{:?}", c_file_path);
+    println!("compile stage: {:?}", compile_stage);
+    println!("c file path: {:?}", c_file_path);
 
-    // ---- PREPROCESS
-    //	gcc -E -P INPUT_FILE -o PREPROCESSED_FILE
+    // ---- PREPROCESSOR
+    if let Err(status) = cc::preprocessor(c_file_path.as_path()) {
+        eprintln!("preprocessor failed.");
+        exit(status.code().unwrap())
+    }
 
     // ---- COMPILE
     //	Lexer
