@@ -1,7 +1,11 @@
-use std::{env, process::exit};
+use std::env;
+
+use lexer::Lexer;
 
 mod args;
 mod cc;
+mod helper;
+mod lexer;
 
 #[derive(Debug, PartialEq)]
 enum CompileStage {
@@ -18,18 +22,33 @@ fn main() {
     println!("compile stage: {:?}", compile_stage);
     println!("c file path: {:?}", c_file_path);
 
-    // ---- PREPROCESSOR
-    if let Err(status) = cc::preprocessor(c_file_path.as_path()) {
-        eprintln!("preprocessor failed.");
-        exit(status.code().unwrap())
+    //-------------------------
+    // Preprocessor
+    let preprocessed_c_file_path = cc::preprocessor(c_file_path.as_path());
+
+    //-------------------------
+    // Compiler
+
+    // Lexer
+    let preprocessed_c_code = helper::read_file(preprocessed_c_file_path.as_path()).unwrap();
+    helper::delete_file(preprocessed_c_file_path.as_path()).unwrap();
+
+    let mut lexer = Lexer::new();
+    let tokens = lexer.tokenize(preprocessed_c_code);
+    for token in tokens {
+        println!("{:?}", token);
     }
 
-    // ---- COMPILE
-    //	Lexer
-    //	Parser
-    //	Assembly Generation
-    //	Code Emission
+    // Parser
+    // ...
 
-    // ---- ASSEMBLE and LINK
-    //	gcc ASSEMBLY_FILE -o OUTPUT_FILE
+    // Assembly Generation
+    // ...
+
+    // Code Emission
+    // ...
+
+    //-------------------------
+    // Assembler and Linker
+    // gcc ASSEMBLY_FILE -o OUTPUT_FILE
 }
