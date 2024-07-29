@@ -67,8 +67,8 @@ pub struct Lexer {
 impl Lexer {
     pub fn new() -> Self {
         Self {
-            identifier_re: Regex::new(r"[a-zA-Z_]\w*\b").unwrap(),
-            constant_re: Regex::new(r"[0-9]+\b").unwrap(),
+            identifier_re: Regex::new(r"^[a-zA-Z_]\w*$").unwrap(),
+            constant_re: Regex::new(r"^[0-9]+$").unwrap(),
 
             boundary: vec![';', '(', ')', '{', '}'],
 
