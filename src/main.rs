@@ -1,4 +1,4 @@
-use std::env;
+use std::{env, process};
 
 use lexer::Lexer;
 
@@ -19,9 +19,6 @@ enum CompileStage {
 fn main() {
     let (c_file_path, compile_stage) = args::parse(env::args().collect::<Vec<String>>());
 
-    println!("compile stage: {:?}", compile_stage);
-    println!("c file path: {:?}", c_file_path);
-
     //-------------------------
     // Preprocessor
     let preprocessed_c_file_path = cc::preprocessor(c_file_path.as_path());
@@ -33,8 +30,8 @@ fn main() {
     let preprocessed_c_code = helper::read_file(preprocessed_c_file_path.as_path()).unwrap();
     helper::delete_file(preprocessed_c_file_path.as_path()).unwrap();
 
-    let mut lexer = Lexer::new();
-    let tokens = lexer.tokenize(preprocessed_c_code);
+    let mut lexer = Lexer::new(preprocessed_c_code);
+    let tokens = lexer.tokenize();
     for token in tokens {
         println!("{:?}", token);
     }
