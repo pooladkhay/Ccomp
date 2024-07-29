@@ -36,6 +36,12 @@ fn main() {
         println!("{:?}", token);
     }
 
+    // Exit if '--lex' flag was passed
+    match compile_stage {
+        CompileStage::Lex => process::exit(0),
+        _ => (),
+    }
+
     // Parser
     // ...
 
