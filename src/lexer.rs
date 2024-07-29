@@ -204,7 +204,7 @@ mod tests {
     #[should_panic(expected = "unknown token '@void' at line 1, column 5.")]
     fn test_tokenize_unknown_token() {
         let mut lexer = Lexer::new(String::from("int @void return"));
-        let tokens = lexer.tokenize();
+        let _tokens = lexer.tokenize();
     }
 
     #[test]
