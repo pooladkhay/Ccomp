@@ -8,7 +8,7 @@ use std::{
 ///
 /// # Exits
 ///
-/// This function will terminate the process with a status code of `1` if the preprocess command fails.
+/// This function will terminate the process with a non-zero status code, if the preprocess command fails.
 pub fn preprocessor(file_path: &Path) -> PathBuf {
     let preprocessed_file_path = format!("{}.i", file_path.file_stem().unwrap().to_str().unwrap());
 
