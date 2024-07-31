@@ -125,6 +125,7 @@ impl Lexer {
                             if self.start != self.end {
                                 tokens.push(self.gen_token());
                             }
+                            break;
                         }
                     }
                 }
